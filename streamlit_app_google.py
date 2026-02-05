@@ -17,10 +17,10 @@ st.title("🍲 Dapur AI")
 st.caption("Your Malaysian Dinner Decider")
 
 # 2. Inventory Input
-st.subheader("What's in the fridge?")
-protein = st.multiselect("Proteins", ["Chicken", "Ikan Kembung", "Beef", "Eggs", "Prawns", "Tempeh"])
+st.subheader("What's in your fridge today?")
+protein = st.multiselect("Proteins", ["Chicken", "Ikan", "Beef", "Eggs", "Prawns", "Lamb"])
 veggies = st.multiselect("Veggies", ["Sawi", "Carrot", "Cili Padi", "Kacang Panjang", "Bayam", "Potato"])
-pantry = st.text_input("Other (e.g., Santan, Belacan, Kicap Manis)")
+pantry = st.text_input("Other Ingredients (e.g., Santan, Serai, Bunga Kantan)")
 
 mode = st.select_slider("Cooking Effort", options=["Penat (Quick)", "Normal", "Rajin (Authentic)"])
 
