@@ -77,10 +77,39 @@ llm = ChatGoogleGenerativeAI(
 st.title("🍲 Dapur AI")
 st.markdown("---")
 
+# Initialize session state for protein selection
+if "selected_proteins" not in st.session_state:
+    st.session_state.selected_proteins = []
+
 # 2. Inventory Input
 with st.container():
     st.subheader("What's in your fridge today?")
-    protein = st.multiselect("Proteins", ["Chicken", "Ikan", "Beef", "Eggs", "Prawns", "Lamb"])
+    
+    # Icon-based Protein Selection
+    st.write("**Proteins** 🥩")
+    protein_options = {
+        "🐔 Chicken": "Chicken",
+        "🐟 Ikan": "Ikan",
+        "🥩 Beef": "Beef",
+        "🥚 Eggs": "Eggs",
+        "🦐 Prawns": "Prawns",
+        "🐑 Lamb": "Lamb"
+    }
+    
+    cols = st.columns(6)
+    for idx, (emoji_label, protein_name) in enumerate(protein_options.items()):
+        with cols[idx]:
+            is_selected = protein_name in st.session_state.selected_proteins
+            button_style = "✓" if is_selected else ""
+            if st.button(f"{emoji_label}\n{button_style}", use_container_width=True, key=f"protein_{protein_name}"):
+                if protein_name in st.session_state.selected_proteins:
+                    st.session_state.selected_proteins.remove(protein_name)
+                else:
+                    st.session_state.selected_proteins.append(protein_name)
+                st.rerun()
+    
+    protein = st.session_state.selected_proteins
+    
     veggies = st.multiselect("Veggies", ["Sawi", "Carrot", "Cili Padi", "Kacang Panjang", "Bayam", "Potato"])
     pantry = st.text_input("Other Ingredients (e.g., Santan, Serai, Bunga Kantan)")
 
