@@ -1,5 +1,6 @@
 streamlit
 langchain
 langchain-google-genai
-langchain.schema
-langchain.community
+langchain-core
+langchain-community
+langchain-schema
