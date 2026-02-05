@@ -1,6 +1,8 @@
 import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
-from langchain.schema import HumanMessage, SystemMessage
+# NEW (Correct for 2026)
+from langchain_core.messages import HumanMessage, SystemMessage
+
 
 # 1. Setup Gemini (The Free GPT alternative)
 # Streamlit will pull the API key from your "Secrets" automatically
