@@ -63,6 +63,14 @@ st.markdown(f"""
         color: #FFFFFF !important;
         font-family: 'Inter', sans-serif;
     }}
+    
+    /* 7. Button Text Visibility in Dark Mode */
+    button {{
+        color: {REPLIT_TEXT} !important;
+    }}
+    button:hover {{
+        color: #FFFFFF !important;
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -77,9 +85,11 @@ llm = ChatGoogleGenerativeAI(
 st.title("🍲 Dapur AI")
 st.markdown("---")
 
-# Initialize session state for protein selection
+# Initialize session state for protein and vegetable selection
 if "selected_proteins" not in st.session_state:
     st.session_state.selected_proteins = []
+if "selected_veggies" not in st.session_state:
+    st.session_state.selected_veggies = []
 
 # 2. Inventory Input
 with st.container():
@@ -110,7 +120,31 @@ with st.container():
     
     protein = st.session_state.selected_proteins
     
-    veggies = st.multiselect("Veggies", ["Sawi", "Carrot", "Cili Padi", "Kacang Panjang", "Bayam", "Potato"])
+    # Icon-based Vegetable Selection
+    st.write("**Vegetables** 🥗")
+    veggie_options = {
+        "🥬 Sawi": "Sawi",
+        "🥕 Carrot": "Carrot",
+        "🌶️ Cili Padi": "Cili Padi",
+        "🫘 Kacang Panjang": "Kacang Panjang",
+        "🥗 Bayam": "Bayam",
+        "🥔 Potato": "Potato"
+    }
+    
+    cols_veggie = st.columns(6)
+    for idx, (emoji_label, veggie_name) in enumerate(veggie_options.items()):
+        with cols_veggie[idx]:
+            is_selected = veggie_name in st.session_state.selected_veggies
+            button_style = "✓" if is_selected else ""
+            if st.button(f"{emoji_label}\n{button_style}", use_container_width=True, key=f"veggie_{veggie_name}"):
+                if veggie_name in st.session_state.selected_veggies:
+                    st.session_state.selected_veggies.remove(veggie_name)
+                else:
+                    st.session_state.selected_veggies.append(veggie_name)
+                st.rerun()
+    
+    veggies = st.session_state.selected_veggies
+    
     pantry = st.text_input("Other Ingredients (e.g., Santan, Serai, Bunga Kantan)")
 
     mode = st.select_slider("Cooking Effort", options=["Penat (Quick)", "Normal", "Rajin (Authentic)"])
