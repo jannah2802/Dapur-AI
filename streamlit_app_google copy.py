@@ -71,6 +71,54 @@ st.markdown(f"""
     button:hover {{
         color: #FFFFFF !important;
     }}
+    
+    /* 8. Response Container Styling */
+    .response-container {{
+        background: linear-gradient(135deg, {REPLIT_NAVY} 0%, {REPLIT_DARK} 100%);
+        border: 2px solid {REPLIT_BLUE};
+        border-radius: 12px;
+        padding: 30px;
+        margin-top: 20px;
+        box-shadow: 0 8px 32px rgba(0, 83, 166, 0.2);
+    }}
+    
+    .response-container h2 {{
+        color: {REPLIT_BLUE} !important;
+        margin-top: 0;
+        border-bottom: 2px solid {REPLIT_BLUE};
+        padding-bottom: 15px;
+    }}
+    
+    .response-container h3 {{
+        color: #FFFFFF !important;
+        margin-top: 20px;
+    }}
+    
+    .response-container p {{
+        color: {REPLIT_TEXT} !important;
+        line-height: 1.6;
+    }}
+    
+    .response-container ol, .response-container ul {{
+        color: {REPLIT_TEXT} !important;
+    }}
+    
+    .response-container li {{
+        color: {REPLIT_TEXT} !important;
+        margin-bottom: 8px;
+    }}
+    
+    .response-container strong {{
+        color: #FFFFFF !important;
+    }}
+    
+    .response-container em {{
+        color: #A0AEC0;
+    }}
+    
+    .response-container hr {{
+        border-color: {REPLIT_BORDER};
+    }}
     </style>
     """, unsafe_allow_html=True)
 
@@ -165,8 +213,8 @@ if st.button("What should I cook?", use_container_width=True):
             
             response = llm.invoke([system_prompt, HumanMessage(content=user_prompt)])
             
-            st.success("### Suggested Dish")
-            st.write(response.content)
+            # Display response in styled container
+            st.markdown(f'<div class="response-container">{response.content}</div>', unsafe_allow_html=True)
 
 # 4. Feedback (The beginning of your 'Memory' feature)
 st.divider()
