@@ -41,8 +41,7 @@ if st.button("What should I cook?", use_container_width=True):
             response = llm.invoke([system_prompt, HumanMessage(content=user_prompt)])
             
             st.success("### Suggested Dish")
-            #st.write(response.content)
-            st.markdown(response.content)
+            st.write(response.content)
 
 # 4. Feedback (The beginning of your 'Memory' feature)
 st.divider()
