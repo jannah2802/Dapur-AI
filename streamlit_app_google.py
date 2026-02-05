@@ -12,7 +12,12 @@ llm = ChatGoogleGenerativeAI(
     temperature=0.7
 )
 
-st.set_page_config(page_title="Dapur AI", page_icon="🍲")
+st.set_page_config(
+    page_title="Dapur AI", 
+    page_icon="🍲",
+    layout="wide",
+    initial_sidebar_state="auto"
+)
 st.title("🍲 Dapur AI")
 st.caption("Your Malaysian Dinner Decider")
 
@@ -22,7 +27,10 @@ protein = st.multiselect("Proteins", ["Chicken", "Ikan", "Beef", "Eggs", "Prawns
 veggies = st.multiselect("Veggies", ["Sawi", "Carrot", "Cili Padi", "Kacang Panjang", "Bayam", "Potato"])
 pantry = st.text_input("Other Ingredients (e.g., Santan, Serai, Bunga Kantan)")
 
-mode = st.select_slider("Cooking Effort", options=["Penat (Quick)", "Normal", "Rajin (Authentic)"])
+mode = st.select_slider(
+    "⏱️ Cooking Effort", 
+    options=["⚡ Quick (15min)", "⚙️ Normal", "👨‍🍳 Authentic"]
+)
 
 # 3. Generating the Suggestion
 if st.button("What should I cook?", use_container_width=True):
@@ -32,22 +40,38 @@ if st.button("What should I cook?", use_container_width=True):
         with st.spinner("Chef Gemini is thinking..."):
             system_prompt = SystemMessage(content="""You are an expert Malaysian Home Chef. 
             Suggest ONE dish based on the ingredients provided. 
-            If mode is 'Penat', suggest a 15-min meal. 
-            If 'Rajin', suggest a traditional slow-cooked dish. 
-            Always explain why this dish fits the ingredients.""")
+            Keep response concise and mobile-friendly with clear formatting.
+            If mode is 'Quick', suggest a 15-min meal. 
+            If 'Authentic', suggest a traditional slow-cooked dish. 
+            Format: Dish name, cooking time, brief ingredients list, simple steps, why it fits.""")
             
             user_prompt = f"Ingredients: {protein}, {veggies}, {pantry}. Mode: {mode}."
             
             response = llm.invoke([system_prompt, HumanMessage(content=user_prompt)])
             
-            st.success("### Suggested Dish")
-            st.write(response.content)
+            # Format response for mobile readability
+            st.success("✨ Suggested Dish")
+            
+            # Parse and format response for better mobile display
+            with st.container(border=True):
+                # Split content into paragraphs for better readability
+                content = response.content.strip()
+                paragraphs = content.split('\n\n')
+                
+                for para in paragraphs:
+                    if para.strip():
+                        if any(header in para for header in ['**', '###', '##', '#']):
+                            st.markdown(para)
+                        else:
+                            st.markdown(para, unsafe_allow_html=False)
 
 # 4. Feedback (The beginning of your 'Memory' feature)
 st.divider()
-st.info("Did you like this suggestion?")
-col1, col2 = st.columns(2)
+st.caption("📋 How did you like this suggestion?")
+col1, col2 = st.columns(2, gap="small")
 with col1:
-    if st.button("👍 Love it"): st.toast("Saved to your favorites!")
+    if st.button("👍 Love it", use_container_width=True): 
+        st.toast("✅ Saved to your favorites!")
 with col2:
-    if st.button("👎 Not today"): st.toast("I'll suggest something else next time.")
+    if st.button("👎 Not today", use_container_width=True): 
+        st.toast("💡 I'll suggest something else next time.")
