@@ -3,6 +3,68 @@ from langchain_google_genai import ChatGoogleGenerativeAI
 # NEW (Correct for 2026)
 from langchain_core.messages import HumanMessage, SystemMessage
 
+# Replit Brand Colors
+REPLIT_DARK = "#0E1525"
+REPLIT_NAVY = "#1C2333"
+REPLIT_BLUE = "#0053A6"
+REPLIT_TEXT = "#F5F9FC"
+REPLIT_BORDER = "#3C445C"
+
+st.set_page_config(page_title="Dapur AI", page_icon="🍲", layout="centered")
+
+# Custom CSS for the Replit Vibe
+st.markdown(f"""
+    <style>
+    /* 1. Global Background and Text */
+    .stApp {{
+        background-color: {REPLIT_DARK};
+        color: {REPLIT_TEXT};
+    }}
+    
+    /* 2. Style the Input Cards (Containers) */
+    div[data-testid="stVerticalBlock"] > div:has(div.stMultiSelect) {{
+        background-color: {REPLIT_NAVY};
+        padding: 20px;
+        border-radius: 12px;
+        border: 1px solid {REPLIT_BORDER};
+        margin-bottom: 10px;
+    }}
+
+    /* 3. Style Buttons (The Blue Action Button) */
+    div.stButton > button {{
+        background-color: {REPLIT_BLUE} !important;
+        color: white !important;
+        border: none !important;
+        border-radius: 8px !important;
+        height: 50px !important;
+        width: 100% !important;
+        font-weight: 600 !important;
+        letter-spacing: 0.5px;
+        transition: all 0.2s ease;
+    }}
+    div.stButton > button:hover {{
+        filter: brightness(1.2);
+        box-shadow: 0 0 15px rgba(0, 83, 166, 0.4);
+    }}
+
+    /* 4. Style Multi-select & Input Boxes */
+    div[data-baseweb="select"] > div {{
+        background-color: {REPLIT_DARK} !important;
+        border: 1px solid {REPLIT_BORDER} !important;
+    }}
+    
+    /* 5. Hide Streamlit Branding */
+    header {{visibility: hidden;}}
+    footer {{visibility: hidden;}}
+    #MainMenu {{visibility: hidden;}}
+
+    /* 6. Typography */
+    h1, h2, h3 {{
+        color: #FFFFFF !important;
+        font-family: 'Inter', sans-serif;
+    }}
+    </style>
+    """, unsafe_allow_html=True)
 
 # 1. Setup Gemini (The Free GPT alternative)
 # Streamlit will pull the API key from your "Secrets" automatically
@@ -12,17 +74,17 @@ llm = ChatGoogleGenerativeAI(
     temperature=0.7
 )
 
-st.set_page_config(page_title="Dapur AI", page_icon="🍲")
 st.title("🍲 Dapur AI")
-st.caption("Your Malaysian Dinner Decider")
+st.markdown("---")
 
 # 2. Inventory Input
-st.subheader("What's in your fridge today?")
-protein = st.multiselect("Proteins", ["Chicken", "Ikan", "Beef", "Eggs", "Prawns", "Lamb"])
-veggies = st.multiselect("Veggies", ["Sawi", "Carrot", "Cili Padi", "Kacang Panjang", "Bayam", "Potato"])
-pantry = st.text_input("Other Ingredients (e.g., Santan, Serai, Bunga Kantan)")
+with st.container():
+    st.subheader("What's in your fridge today?")
+    protein = st.multiselect("Proteins", ["Chicken", "Ikan", "Beef", "Eggs", "Prawns", "Lamb"])
+    veggies = st.multiselect("Veggies", ["Sawi", "Carrot", "Cili Padi", "Kacang Panjang", "Bayam", "Potato"])
+    pantry = st.text_input("Other Ingredients (e.g., Santan, Serai, Bunga Kantan)")
 
-mode = st.select_slider("Cooking Effort", options=["Penat (Quick)", "Normal", "Rajin (Authentic)"])
+    mode = st.select_slider("Cooking Effort", options=["Penat (Quick)", "Normal", "Rajin (Authentic)"])
 
 # 3. Generating the Suggestion
 if st.button("What should I cook?", use_container_width=True):
