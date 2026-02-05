@@ -2,7 +2,7 @@ import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
 # NEW (Correct for 2026)
 from langchain_core.messages import HumanMessage, SystemMessage
-from tenacity import retry, stop_after_attempt, wait_exponential
+from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 import re
 from html.parser import HTMLParser
 
@@ -142,13 +142,18 @@ st.markdown(f"""
 # 1. Setup Gemini (The Free GPT alternative)
 # Streamlit will pull the API key from your "Secrets" automatically
 llm = ChatGoogleGenerativeAI(
-    model="gemini-2-flash", 
+    model="gemini-2.0-flash", 
     google_api_key=st.secrets["GOOGLE_API_KEY"],
     temperature=0.7
 )
 
 # Add retry logic wrapper
-@retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=1, min=2, max=10))
+@retry(
+    stop=stop_after_attempt(3), 
+    wait=wait_exponential(multiplier=1, min=2, max=10),
+    retry=retry_if_exception_type(Exception),
+    reraise=True
+)
 def get_recipe_suggestion(system_prompt, user_message):
     """Get recipe suggestion with retry logic"""
     return llm.invoke([system_prompt, user_message])
@@ -241,7 +246,15 @@ if st.button("What should I cook?", use_container_width=True):
                 cleaned_content = clean_response(response.content)
                 st.markdown(f'<div class="response-container">{cleaned_content}</div>', unsafe_allow_html=True)
             except Exception as e:
-                st.error(f"Failed to get recipe suggestion after retries. Please try again. Error: {str(e)}")
+                error_msg = str(e)
+                if "API key" in error_msg or "authentication" in error_msg.lower():
+                    st.error("🔑 Authentication error: Please check your Google API key in Streamlit secrets.")
+                elif "quota" in error_msg.lower():
+                    st.error("⚠️ API quota exceeded: Please try again later.")
+                elif "model" in error_msg.lower():
+                    st.error("🤖 Model unavailable: The Gemini model is temporarily unavailable.")
+                else:
+                    st.error(f"Failed to get recipe suggestion after retries. Please try again.\\n\\nError: {error_msg}")
 
 # 4. Feedback (The beginning of your 'Memory' feature)
 st.divider()
