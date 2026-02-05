@@ -2,6 +2,8 @@ import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
 # NEW (Correct for 2026)
 from langchain_core.messages import HumanMessage, SystemMessage
+import re
+from html.parser import HTMLParser
 
 # Replit Brand Colors
 REPLIT_DARK = "#0E1525"
@@ -9,6 +11,20 @@ REPLIT_NAVY = "#1C2333"
 REPLIT_BLUE = "#0053A6"
 REPLIT_TEXT = "#F5F9FC"
 REPLIT_BORDER = "#3C445C"
+
+def clean_response(text):
+    """Clean HTML tags and unnecessary characters from response"""
+    # Remove HTML tags
+    text = re.sub(r'<[^>]+>', '', text)
+    # Remove HTML entities
+    text = re.sub(r'&[a-zA-Z0-9]+;', '', text)
+    # Remove extra whitespace but keep line breaks
+    text = re.sub(r'[ \t]+', ' ', text)
+    # Remove excessive newlines (more than 2)
+    text = re.sub(r'\n{3,}', '\n\n', text)
+    # Clean up markdown syntax for asterisks
+    text = re.sub(r'\*{2,}', '**', text)
+    return text.strip()
 
 st.set_page_config(page_title="Dapur AI", page_icon="🍲", layout="centered")
 
@@ -213,8 +229,9 @@ if st.button("What should I cook?", use_container_width=True):
             
             response = llm.invoke([system_prompt, HumanMessage(content=user_prompt)])
             
-            # Display response in styled container
-            st.markdown(f'<div class="response-container">{response.content}</div>', unsafe_allow_html=True)
+            # Clean the response and display it
+            cleaned_content = clean_response(response.content)
+            st.markdown(f'<div class="response-container">{cleaned_content}</div>', unsafe_allow_html=True)
 
 # 4. Feedback (The beginning of your 'Memory' feature)
 st.divider()
