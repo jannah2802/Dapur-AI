@@ -2,7 +2,6 @@ import streamlit as st
 from langchain_google_genai import ChatGoogleGenerativeAI
 # NEW (Correct for 2026)
 from langchain_core.messages import HumanMessage, SystemMessage
-from tenacity import retry, stop_after_attempt, wait_exponential, retry_if_exception_type
 import re
 from html.parser import HTMLParser
 
@@ -147,17 +146,6 @@ llm = ChatGoogleGenerativeAI(
     temperature=0.7
 )
 
-# Add retry logic wrapper
-@retry(
-    stop=stop_after_attempt(3), 
-    wait=wait_exponential(multiplier=1, min=2, max=10),
-    retry=retry_if_exception_type(Exception),
-    reraise=True
-)
-def get_recipe_suggestion(system_prompt, user_message):
-    """Get recipe suggestion with retry logic"""
-    return llm.invoke([system_prompt, user_message])
-
 st.title("🍲 Dapur AI")
 st.markdown("---")
 
@@ -240,21 +228,21 @@ if st.button("What should I cook?", use_container_width=True):
             user_prompt = f"Ingredients: {protein}, {veggies}, {pantry}. Mode: {mode}."
             
             try:
-                response = get_recipe_suggestion(system_prompt, HumanMessage(content=user_prompt))
+                response = llm.invoke([system_prompt, HumanMessage(content=user_prompt)])
                 
                 # Clean the response and display it
                 cleaned_content = clean_response(response.content)
                 st.markdown(f'<div class="response-container">{cleaned_content}</div>', unsafe_allow_html=True)
             except Exception as e:
                 error_msg = str(e)
-                if "API key" in error_msg or "authentication" in error_msg.lower():
+                if "quota" in error_msg.lower() or "resource exhausted" in error_msg.lower():
+                    st.error("⚠️ API quota exceeded. Please try again later.")
+                elif "API key" in error_msg or "authentication" in error_msg.lower():
                     st.error("🔑 Authentication error: Please check your Google API key in Streamlit secrets.")
-                elif "quota" in error_msg.lower():
-                    st.error("⚠️ API quota exceeded: Please try again later.")
                 elif "model" in error_msg.lower():
-                    st.error("🤖 Model unavailable: The Gemini model is temporarily unavailable.")
+                    st.error("🤖 Model unavailable. Please try again later.")
                 else:
-                    st.error(f"Failed to get recipe suggestion after retries. Please try again.\\n\\nError: {error_msg}")
+                    st.error("Failed to get recipe suggestion. Please try again.")
 
 # 4. Feedback (The beginning of your 'Memory' feature)
 st.divider()
