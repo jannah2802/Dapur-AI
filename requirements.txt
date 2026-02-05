@@ -1,2 +1,2 @@
 streamlit
-langchain-openai
+langchain-google-genai
