@@ -7,7 +7,7 @@ from langchain_core.messages import HumanMessage, SystemMessage
 # 1. Setup Gemini (The Free GPT alternative)
 # Streamlit will pull the API key from your "Secrets" automatically
 llm = ChatGoogleGenerativeAI(
-    model="gemini-3-flash", 
+    model="gemini-3-flash-preview", 
     google_api_key=st.secrets["GOOGLE_API_KEY"],
     temperature=0.7
 )
